@@ -142,6 +142,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
                 description: descController.text,
                 category: selectedCategory,
                 quantity: int.parse(quantityController.text),
+                condition: 'Baik',
                 location: locationController.text.isEmpty
                     ? null
                     : locationController.text,
@@ -243,6 +244,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
                 description: descController.text,
                 category: selectedCategory,
                 quantity: int.parse(quantityController.text),
+                condition: 'Baik',
                 location: locationController.text.isEmpty
                     ? null
                     : locationController.text,

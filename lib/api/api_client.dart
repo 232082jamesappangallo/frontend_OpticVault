@@ -1,13 +1,25 @@
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 class ApiClient {
   // URL Backend - sesuaikan dengan environment
   // Web/Desktop: localhost:8000
-  // Android Emulator: 10.0.2.2:8000
+  // Android Emulator: 10.0.2.2:8000 (for BlueStacks or Android AVD)
   // Physical Device: Host IP:8000
-  static const String baseUrl = 'http://localhost:8000/api';
+  static String get baseUrl {
+    if (Platform.isAndroid) {
+      // For Android emulator (including BlueStacks) - use 10.0.2.2 to reach host
+      return 'http://10.56.37.165:8000/api';
+    } else if (Platform.isIOS) {
+      // For iOS simulator
+      return 'http://localhost:8000/api';
+    } else {
+      // For Web, Desktop (Windows, macOS, Linux)
+      return 'http://localhost:8000/api';
+    }
+  }
   static const String _tokenKey = 'auth_token';
   
   // Singleton pattern

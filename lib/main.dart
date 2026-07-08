@@ -4,8 +4,8 @@ import 'constants/app_strings.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/category_list_screen.dart';
-import 'screens/item_list_screen.dart';
+import 'screens/category_management_screen.dart';
+import 'screens/item_management_screen.dart';
 import 'api/api_client.dart';
 
 void main() async {
@@ -28,8 +28,8 @@ class OpticVaultApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/dashboard': (context) => const DashboardScreen(),
-        '/categories': (context) => const CategoryListScreen(),
-        '/items': (context) => const ItemListScreen(),
+        '/categories': (context) => const CategoryManagementScreen(),
+        '/items': (context) => const ItemManagementScreen(),
       },
     );
   }

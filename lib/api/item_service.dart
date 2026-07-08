@@ -1,159 +1,136 @@
 import 'api_client.dart';
-import '../models/item_model.dart';
+import 'package:opticvault/models/item_model.dart';
 
 class ItemService {
   final ApiClient _apiClient = ApiClient();
 
-  /// Get semua items
-  Future<List<ItemModel>> getItems({
-    int page = 1,
-    int perPage = 10,
-  }) async {
+  /// Get all items sebagai List<ItemModel>
+  Future<List<ItemModel>> getItems() async {
     try {
-      final response = await _apiClient.get(
-        '/items?page=$page&per_page=$perPage',
-      );
-
-      if (response['data'] != null) {
-        final List<dynamic> data = response['data'];
-        return data.map((json) => ItemModel.fromJson(json)).toList();
-      } else {
-        return [];
+      final response = await _apiClient.get('/items');
+      
+      if (response != null && response['data'] is List) {
+        return (response['data'] as List)
+            .map((item) => ItemModel.fromJson(item))
+            .toList();
       }
+      
+      return [];
     } catch (e) {
-      // Handle 401 - user should login again
-      if (e.toString().contains('Unauthorized')) {
-        throw Exception('Session expired - Please login again');
-      }
-      throw Exception('Get items failed: $e');
+      throw Exception('Failed to fetch items: $e');
     }
   }
 
-  /// Get recent items (untuk dashboard)
-  Future<List<ItemModel>> getRecentItems({int limit = 3}) async {
+  /// Get all items (paginated) sebagai Map
+  Future<Map<String, dynamic>> getAllItems({int page = 1, int perPage = 10}) async {
+    try {
+      final response = await _apiClient.get('/items?page=$page&per_page=$perPage');
+      
+      return {
+        'data': response['data'] ?? [],
+        'pagination': response['pagination'] ?? {},
+      };
+    } catch (e) {
+      throw Exception('Failed to fetch items: $e');
+    }
+  }
+
+  /// Get recent items sebagai List<ItemModel>
+  Future<List<ItemModel>> getRecentItems({int limit = 5}) async {
     try {
       final response = await _apiClient.get('/items/recent?limit=$limit');
-
-      if (response['data'] != null) {
-        final List<dynamic> data = response['data'];
-        return data.map((json) => ItemModel.fromJson(json)).toList();
-      } else {
-        return [];
+      
+      if (response != null && response['data'] is List) {
+        return (response['data'] as List)
+            .map((item) => ItemModel.fromJson(item))
+            .toList();
       }
+      
+      return [];
     } catch (e) {
-      throw Exception('Get recent items failed: $e');
+      throw Exception('Failed to fetch recent items: $e');
     }
   }
 
-  /// Get item detail
-  Future<ItemModel> getItemById(int id) async {
+  /// Get single item
+  Future<dynamic> getItem(int id) async {
     try {
       final response = await _apiClient.get('/items/$id');
-
-      if (response['data'] != null) {
-        return ItemModel.fromJson(response['data']);
-      } else {
-        throw Exception('Invalid response format');
-      }
+      return response['data'];
     } catch (e) {
-      throw Exception('Get item failed: $e');
+      throw Exception('Failed to fetch item: $e');
     }
   }
 
-  /// Get items by category
-  Future<List<ItemModel>> getItemsByCategory(String category) async {
-    try {
-      final response = await _apiClient.get('/items/category/$category');
-
-      if (response['data'] != null) {
-        final List<dynamic> data = response['data'];
-        return data.map((json) => ItemModel.fromJson(json)).toList();
-      } else {
-        return [];
-      }
-    } catch (e) {
-      throw Exception('Get items by category failed: $e');
-    }
-  }
-
-  /// Get all unique categories
+  /// Get all categories dari items
   Future<List<String>> getCategories() async {
     try {
-      final items = await getItems(perPage: 100);
-      final categories = items.map((item) => item.category).toSet().toList();
-      categories.sort();
-      return categories;
+      final response = await _apiClient.get('/items');
+      
+      if (response != null && response['data'] is List) {
+        Set<String> categories = {};
+        for (var item in response['data']) {
+          if (item['category'] != null) {
+            categories.add(item['category']);
+          }
+        }
+        return categories.toList()..sort();
+      }
+      
+      return [];
     } catch (e) {
-      throw Exception('Get categories failed: $e');
+      throw Exception('Failed to fetch categories: $e');
     }
   }
 
-  /// Create item baru
-  Future<ItemModel> createItem({
+  /// Create new item
+  Future<dynamic> createItem({
     required String name,
     required String description,
     required String category,
     required int quantity,
+    required String condition,
     String? location,
-    String? condition,
   }) async {
     try {
-      final data = {
+      final response = await _apiClient.post('/items', data: {
         'name': name,
         'description': description,
         'category': category,
         'quantity': quantity,
-        'location': location,
-        if (condition != null) 'condition': condition,
-      };
-      
-      final response = await _apiClient.post(
-        '/items',
-        data: data,
-      );
+        'condition': condition,
+        'location': location ?? '',
+      });
 
-      if (response['data'] != null) {
-        return ItemModel.fromJson(response['data']);
-      } else {
-        throw Exception('Invalid response format');
-      }
+      return response['data'];
     } catch (e) {
-      throw Exception('Create item failed: $e');
+      throw Exception('Failed to create item: $e');
     }
   }
 
   /// Update item
-  Future<ItemModel> updateItem(
+  Future<dynamic> updateItem(
     int id, {
     required String name,
     required String description,
     required String category,
     required int quantity,
+    required String condition,
     String? location,
-    String? condition,
   }) async {
     try {
-      final data = {
+      final response = await _apiClient.put('/items/$id', data: {
         'name': name,
         'description': description,
         'category': category,
         'quantity': quantity,
-        'location': location,
-        if (condition != null) 'condition': condition,
-      };
-      
-      final response = await _apiClient.put(
-        '/items/$id',
-        data: data,
-      );
+        'condition': condition,
+        'location': location ?? '',
+      });
 
-      if (response['data'] != null) {
-        return ItemModel.fromJson(response['data']);
-      } else {
-        throw Exception('Invalid response format');
-      }
+      return response['data'];
     } catch (e) {
-      throw Exception('Update item failed: $e');
+      throw Exception('Failed to update item: $e');
     }
   }
 
@@ -162,7 +139,29 @@ class ItemService {
     try {
       await _apiClient.delete('/items/$id');
     } catch (e) {
-      throw Exception('Delete item failed: $e');
+      throw Exception('Failed to delete item: $e');
     }
+  }
+
+  /// Get items by category sebagai List<ItemModel>
+  Future<List<ItemModel>> getItemsByCategory(String category) async {
+    try {
+      final response = await _apiClient.get('/items/category/$category');
+      
+      if (response != null && response['data'] is List) {
+        return (response['data'] as List)
+            .map((item) => ItemModel.fromJson(item))
+            .toList();
+      }
+      
+      return [];
+    } catch (e) {
+      throw Exception('Failed to fetch items by category: $e');
+    }
+  }
+
+  /// Get condition options
+  static List<String> getConditionOptions() {
+    return ['Baik', 'Rusak', 'Perlu Perbaikan'];
   }
 }

@@ -122,8 +122,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   // Row 1: Kelola Kategori
                   _buildMenuCard(
-                    title: AppStrings.manageCategories,
-                    subtitle: AppStrings.categoriesSubtitle,
+                    title: 'Kelola Kategori',
+                    subtitle: 'Tambah, edit, dan hapus kategori barang',
                     icon: Icons.folder_outlined,
                     iconColor: AppColors.accentOrange,
                     onTap: () {
@@ -134,9 +134,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   // Row 2: Kelola Barang
                   _buildMenuCard(
-                    title: AppStrings.manageInventory,
-                    subtitle: AppStrings.inventorySubtitle,
-                    icon: Icons.videocam_outlined,
+                    title: 'Kelola Barang',
+                    subtitle: 'Tambah, edit, dan hapus barang inventaris',
+                    icon: Icons.inventory_2_outlined,
                     iconColor: AppColors.accentGreen,
                     onTap: () {
                       Navigator.pushNamed(context, '/items');
